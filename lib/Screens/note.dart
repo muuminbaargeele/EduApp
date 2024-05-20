@@ -40,6 +40,35 @@ class _NoteScreenState extends State<NoteScreen> {
   late Color currentColor = Color(int.parse('0xff${widget.notes!.noteColor}'));
   late bool isExits = widget.notes == null ? false : true;
 
+  void showDeleteConfirmationDialog(
+      BuildContext context, String noteId, VoidCallback ontap) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('Do you want to delete?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                deleteNote(noteId).then((value) {
+                  update();
+                  ontap();
+                });
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void changeColor(Color color) {
     setState(() => pickerColor = color);
   }
@@ -142,10 +171,8 @@ class _NoteScreenState extends State<NoteScreen> {
                   onSelected: (String value) {
                     if (value == 'Delete' && isExits) {
                       if (connectivityProvider.isConnected) {
-                        deleteNote(widget.notes!.noteId).then((value) {
-                          update();
-                          Navigator.pop(context);
-                        });
+                        showDeleteConfirmationDialog(context,
+                            widget.notes!.noteId, () => Navigator.pop(context));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -309,4 +336,3 @@ class _NoteScreenState extends State<NoteScreen> {
     );
   }
 }
-
