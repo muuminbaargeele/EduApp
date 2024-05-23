@@ -1,3 +1,4 @@
+import 'package:edu_app/Providers/trashprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
@@ -35,6 +36,9 @@ class MainApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => NotesProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TrashProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => ConnectivityProvider(),

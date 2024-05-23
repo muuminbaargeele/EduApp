@@ -1,8 +1,8 @@
+import 'package:edu_app/Screens/otp.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:edu_app/Providers/connprovider.dart';
-import 'package:edu_app/Screens/home.dart';
 import 'package:edu_app/Screens/login.dart';
 import 'package:edu_app/databases/services.dart';
 import 'package:provider/provider.dart';
@@ -73,23 +73,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
     validation(email, username, password);
     if (emailError.isEmpty && usernameError.isEmpty && passwordError.isEmpty) {
       isLoading = true;
-      final response = await register(username, email, password, box);
-      if (response["Status"] == "Success") {
-        String userId = response["UserId"];
-        box.put("UserId", userId);
-        box.put("isLogin", true);
-        Navigator.pushAndRemoveUntil(
+      final response = await register(username, email, password);
+      if (response["status"] == "success") {
+        Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-            (route) => false);
-      } else if (response["Status"] == "Email Already exists") {
+            MaterialPageRoute(
+                builder: (_) => OtpPage(
+                      userGmail: email,
+                    )));
+      } else if (response["message"] == "Email already exists") {
         setState(() {
-          emailError = response["Status"];
+          emailError = response["message"];
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response["Status"]),
+            content: Text(response["message"]),
             duration: const Duration(seconds: 1),
           ),
         );

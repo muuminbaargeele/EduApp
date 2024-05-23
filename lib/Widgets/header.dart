@@ -1,14 +1,17 @@
+import 'package:edu_app/Screens/trash.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:edu_app/Screens/login.dart';
 import 'package:provider/provider.dart';
-
 import '../Providers/userprovider.dart';
 
 class Header extends StatefulWidget {
   const Header({
     super.key,
+    this.folderId,
   });
+
+  final String? folderId;
 
   @override
   State<Header> createState() => _HeaderState();
@@ -76,6 +79,15 @@ class _HeaderState extends State<Header> {
                     context,
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
                     (route) => false);
+              },
+            ),
+            PopupMenuItem<String>(
+              child: const Text('Trash'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TrashScreen(folderId: widget.folderId,)),
+                );
               },
             ),
           ],

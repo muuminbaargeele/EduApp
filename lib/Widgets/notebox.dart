@@ -115,11 +115,14 @@ class _NoteBoxState extends State<NoteBox> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                notes[index].topicName,
-                                style: TextStyle(
-                                  fontSize: sizes("height", 12),
-                                  fontWeight: FontWeight.w300,
+                              Expanded(
+                                child: Text(
+                                  notes[index].topicName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: sizes("height", 12),
+                                    fontWeight: FontWeight.w300,
+                                  ),
                                 ),
                               ),
                               ColoredSvgIcon(

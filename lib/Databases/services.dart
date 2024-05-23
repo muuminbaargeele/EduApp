@@ -1,3 +1,4 @@
+import 'package:edu_app/Models/gettrash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:edu_app/Models/getfolders.dart';
@@ -54,7 +55,7 @@ Future<Map<String, dynamic>> login(
 
 // Register API
 Future<Map<String, dynamic>> register(
-    String username, String email, String password, dynamic box) async {
+    String username, String email, String password) async {
   const url =
       '$urls/eduapp/register.php'; // Adjust with your registration API endpoint
 
@@ -89,6 +90,55 @@ Future<Map<String, dynamic>> register(
       }
       return {
         'error': 'Registration failed. Status code: ${response.statusCode}'
+      };
+    }
+  } catch (error) {
+    // Error handling for network request
+    if (kDebugMode) {
+      print('An error occurred: $error');
+    }
+    return {'error': 'An error occurred: $error'};
+  }
+}
+
+// OTP Check API
+Future<Map<String, dynamic>> otpCheck(
+  String gmail,
+  String code,
+) async {
+  const url =
+      '$urls/eduapp/checkotp.php'; // Adjust with your otpCheck API endpoint
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'Email':
+            gmail, // Ensure these field names match with your API's expected fields
+        'Code': code,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Successful otpCheck
+      final responseData = jsonDecode(response.body);
+      // Assuming the API returns a string message on successful otpCheck
+      if (responseData == "Success") {
+        return responseData;
+      } else {
+        // Handle specific API error messages (e.g., email already exists)
+        return responseData; // Directly return the API's response message
+      }
+    } else {
+      // Error handling for unsuccessful otpCheck
+      if (kDebugMode) {
+        print('otpCheck failed. Status code: ${response.statusCode}');
+      }
+      return {
+        'error': 'otpCheck failed. Status code: ${response.statusCode}'
       };
     }
   } catch (error) {
@@ -194,6 +244,43 @@ Future<List<GetNotes>> getNotes(folderId) async {
       // If the server returns a 200 OK response,
       // parse the JSON and return a list of GetUser objects.
       return getNotesFromJson(response.body);
+    } else {
+      // If the server did not return a 200 OK response,
+      // throw an exception or handle error accordingly.
+      if (kDebugMode) {
+        print('Failed to load Notes. Status code: ${response.statusCode}');
+      }
+      throw Exception('Failed to load Notes');
+    }
+  } catch (error) {
+    // Handle exceptions from the HTTP request.
+    if (kDebugMode) {
+      print('An error occurred: $error');
+    }
+    throw Exception('An error occurred while fetching Notes: $error');
+  }
+}
+
+// Fetch Trash API
+Future<List<GetTrash>> getTrash(trash) async {
+  const url = '$urls/eduapp/getnotes.php'; // Adjust with your API endpoint
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        // Ensure these field names match with your API's expected fields
+        'Trash': trash.toString(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response,
+      // parse the JSON and return a list of GetUser objects.
+      return getTrashFromJson(response.body);
     } else {
       // If the server did not return a 200 OK response,
       // throw an exception or handle error accordingly.
@@ -341,42 +428,115 @@ Future<Map<String, dynamic>> deleteFolder(String folderId) async {
 }
 
 // Delete Note
-Future<Map<String, dynamic>> deleteNote(String noteId) async {
+Future<Map<String, dynamic>> deleteNote(
+    {noteId, delete, recovery, userid}) async {
   final url =
       Uri.parse('$urls/eduapp/deletenote.php'); // Adjust with your API endpoint
 
-  try {
-    final response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'NoteId': noteId,
-      },
-    );
+  if (delete != null && userid != null) {
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'UserId': userid,
+          'DeleteAll': delete,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      // Successful Note deleted
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-      // You can customize the response based on your API's response structure
-      // For example, if your API returns {"status": "success", "message": "Note added successfully"}
-      return responseData;
-    } else {
-      // Error handling for unsuccessful Note deleted
-      if (kDebugMode) {
-        print('Delete Note failed. Status code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        // Successful Note deleted
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        // You can customize the response based on your API's response structure
+        // For example, if your API returns {"status": "success", "message": "Note added successfully"}
+        return responseData;
+      } else {
+        // Error handling for unsuccessful Note deleted
+        if (kDebugMode) {
+          print('Delete Note failed. Status code: ${response.statusCode}');
+        }
+        return {
+          'error': 'Delete Note failed. Status code: ${response.statusCode}'
+        }; // Return an error message
       }
-      return {
-        'error': 'Delete Note failed. Status code: ${response.statusCode}'
-      }; // Return an error message
+    } catch (error) {
+      // Error handling for network request
+      if (kDebugMode) {
+        print('An error occurred: $error');
+      }
+      return {'error': 'An error occurred: $error'}; // Return an error message
     }
-  } catch (error) {
-    // Error handling for network request
-    if (kDebugMode) {
-      print('An error occurred: $error');
+  } else if (noteId != null && recovery == null) {
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'NoteId': noteId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successful Note deleted
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        // You can customize the response based on your API's response structure
+        // For example, if your API returns {"status": "success", "message": "Note added successfully"}
+        return responseData;
+      } else {
+        // Error handling for unsuccessful Note deleted
+        if (kDebugMode) {
+          print('Delete Note failed. Status code: ${response.statusCode}');
+        }
+        return {
+          'error': 'Delete Note failed. Status code: ${response.statusCode}'
+        }; // Return an error message
+      }
+    } catch (error) {
+      // Error handling for network request
+      if (kDebugMode) {
+        print('An error occurred: $error');
+      }
+      return {'error': 'An error occurred: $error'}; // Return an error message
     }
-    return {'error': 'An error occurred: $error'}; // Return an error message
+  } else {
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'NoteId': noteId,
+          'Recovery': recovery,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successful Note deleted
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        // You can customize the response based on your API's response structure
+        // For example, if your API returns {"status": "success", "message": "Note added successfully"}
+        return responseData;
+      } else {
+        // Error handling for unsuccessful Note deleted
+        if (kDebugMode) {
+          print('Delete Note failed. Status code: ${response.statusCode}');
+        }
+        return {
+          'error': 'Delete Note failed. Status code: ${response.statusCode}'
+        }; // Return an error message
+      }
+    } catch (error) {
+      // Error handling for network request
+      if (kDebugMode) {
+        print('An error occurred: $error');
+      }
+      return {'error': 'An error occurred: $error'}; // Return an error message
+    }
   }
 }
 

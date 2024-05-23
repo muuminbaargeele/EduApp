@@ -43,7 +43,7 @@ class _NotesScreenState extends State<NotesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Header(),
+                Header(folderId: widget.folderId,),
                 const SizedBox(
                   height: 30,
                 ),

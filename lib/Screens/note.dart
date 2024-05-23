@@ -56,7 +56,7 @@ class _NoteScreenState extends State<NoteScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                deleteNote(noteId).then((value) {
+                deleteNote(noteId: noteId).then((value) {
                   update();
                   ontap();
                 });
@@ -161,10 +161,13 @@ class _NoteScreenState extends State<NoteScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.folderName!,
-                  style: TextStyle(
-                    fontSize: sizes("height", 20),
+                Expanded(
+                  child: Text(
+                    widget.folderName!,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: sizes("height", 20),
+                    ),
                   ),
                 ),
                 PopupMenuButton<String>(
