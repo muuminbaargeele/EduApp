@@ -139,25 +139,27 @@ class _TrashBoxState extends State<TrashBox> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  trash[index].topicName,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: sizes("height", 12),
-                                    fontWeight: FontWeight.w300,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    trash[index].topicName,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: sizes("height", 12),
+                                      fontWeight: FontWeight.w300,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  DateFormat('dd/MM/yyyy')
-                                      .format(trash[index].createdDate),
-                                  style: TextStyle(
-                                      color: Colors.grey[500],
-                                      fontSize: sizes("height", 8)),
-                                ),
-                              ],
+                                  Text(
+                                    DateFormat('dd/MM/yyyy')
+                                        .format(trash[index].createdDate),
+                                    style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: sizes("height", 8)),
+                                  ),
+                                ],
+                              ),
                             ),
                             PopupMenuButton<String>(
                               onSelected: (String value) {
